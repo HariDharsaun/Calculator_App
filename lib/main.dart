@@ -13,10 +13,11 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   String temp  = "";
-  int val = 0;
+  double res = 0;
   String operator = "";
-  int? f_num;
-  int? s_num;
+  // int? f_num;
+  // int? s_num;
+  List<String> token = [];
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,10 +44,31 @@ class _MainAppState extends State<MainApp> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(temp,style: TextStyle(fontSize: 70,fontWeight: FontWeight.bold,color:Colors.white)),
+                  Text(temp,style: TextStyle(fontSize: 40,fontWeight: FontWeight.bold,color:Colors.white)),
                 ],
               ),
             ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 30),
+                  child: InkWell(
+                    onTap: (){
+                      setState(() {
+                        if(temp!="")
+                        {
+                          temp = temp.substring(0,temp.length-1);
+                        }
+                      });
+                    },
+                    child: Icon(Icons.backspace_sharp,color: Colors.deepOrange,size: 40),
+                  ),
+                )
+              ],
+            ),
+
             Row(
               children: [
                 button("7", context),
@@ -81,7 +103,8 @@ class _MainAppState extends State<MainApp> {
                 button("=", context),
                 button("/", context),
               ],
-            )
+            ),
+
           ],
         )
       )
@@ -95,56 +118,53 @@ class _MainAppState extends State<MainApp> {
           if(num == 'AC')
           {
             temp = "";
-            f_num = null;
-            s_num = null;
+            token.clear();
             operator="";
           }
           else if(num == '+' || num == '-' || num == 'x' || num == '/')
           {
-            operator = num;
-            f_num = int.parse(temp);
-            temp = "";
+            if(temp!="")
+            {
+              token.add(temp);
+              token.add(num);
+              temp = "";
+            }
           }
           else if(num == '=')
           {
-            s_num = (temp != "")?int.parse(temp) : null;
-            switch (operator) {
-              case '+':
-              if(s_num == null)
-                {
-                  temp = (f_num! + 0).toString();
-                  break;
-                }
-                temp = (f_num! + s_num!).toString();
-                break;
-              case '-':
-                if(s_num == null)
-                  {
-                    temp = (f_num! - 0).toString();
-                    break;
-                  }
-                temp = (f_num! - s_num!).toString();
-                break;
-              case 'x':
-                if(s_num == null)
-                  {
-                    temp = (f_num! * 1).toString();
-                    break;
-                  }
-                temp = (f_num! * s_num!).toString();
-                break;
-              case '/':
-                if(s_num == null)
-                  {
-                    temp = (f_num! / 1).toString();
-                    break;
-                  }
-                temp = (f_num! / s_num!).toString();
-                break;
+            if(temp!= "")
+            {
+              token.add(temp);
+              res = double.parse(token[0]);
             }
+            for(int i=1;i<token.length-1;i=i+2)
+            {
+              operator = token[i];
+              if(operator == '+')
+              {
+                res += int.parse(token[i+1]);
+              }
+              else if(operator == '-')
+              {
+                res -= int.parse(token[i+1]);
+              }
+              else if(operator == 'x')
+              {
+                res *= int.parse(token[i+1]);
+              }
+              else if(operator == '/')
+              {
+                res /= int.parse(token[i+1]);
+              }
+
+            }
+            temp = res.toString();
+            token.clear();
+            res = 0;
           }
           else{
-            temp += num;          }
+            temp += num;
+            }
         });
       },
       child: Container(
